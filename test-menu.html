@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Menu Scraper Test</title>
+</head>
+<body>
+    <h1>Menu Scraper Test</h1>
+    <button id="testBtn">Test Menu Scraper</button>
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            try {
+                const output = document.getElementById('output');
+                output.textContent = 'Fetching...';
+
+                const res = await fetch('/api/proxy-menu');
+                const html = await res.text();
+                
+                output.textContent = 'HTML Length: ' + html.length + '\n\n';
+                output.textContent += 'First 2000 characters:\n';
+                output.textContent += html.substring(0, 2000);
+            } catch (e) {
+                document.getElementById('output').textContent = 'Error: ' + e.message;
+            }
+        });
+    </script>
+</body>
+</html>
