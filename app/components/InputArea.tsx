@@ -79,7 +79,28 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
     setIsMenuLoading(true);
     try {
       const menuText = await fetchTodayMenu();
-      const aiPrompt = `[시스템: 학식 데이터 로드됨] 오늘 식단:\n${menuText}\n\n메뉴를 요약하고 추천해줘.`;
+
+      // 오늘 날짜 정보 생성
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth() + 1;
+      const date = today.getDate();
+      const dayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+      const dayOfWeek = dayNames[today.getDay()];
+      const todayString = `${year}년 ${month}월 ${date}일 ${dayOfWeek}`;
+
+      const aiPrompt = `[지침] 너는 '맛잘알'이야. 송도 맛집과 학식을 꿰뚫고 있는 미식가 친구야.
+반드시 "~하자!", "~어때?", "~ㄱㄱ", "~인데?" 같은 활기차고 친근한 말투를 사용해.
+이모지를 적절히 사용해서 생동감 있게 표현하고, 딱딱하거나 정중한 말투는 절대 사용하지 마.
+
+예시: "오늘 Y프라자 중식 라인업 봤는데, 닭다리오븐구이 개꿀인 것 같은데? 7500원이면 무난하지! 아니면 베트남쌀국수도 괜찮아 보여~ 어때?"
+
+오늘은 ${todayString}이야.
+
+오늘의 학식 메뉴:
+${menuText}
+
+위 메뉴 중에서 오늘(${dayOfWeek}) 먹을만한 거 2-3개 골라서 활기차게 추천해줘!`;
       setInput("");
       await append({ role: "user", content: aiPrompt });
     } catch (e) {
@@ -89,8 +110,21 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
     }
   };
 
-  const handleRecommendRestaurant = () => {
-    setInput(`[시스템: 맛집 추천 요청] 송도 캠퍼스 근처(트리플, 캠타) 맛집 추천해줘.`);
+  const handleRecommendRestaurant = async () => {
+    const aiPrompt = `[지침] 너는 '맛잘알'이야. 송도 맛집과 학식을 꿰뚫고 있는 미식가 친구야.
+반드시 "~하자!", "~어때?", "~ㄱㄱ", "~인데?" 같은 활기차고 친근한 말투를 사용해.
+이모지를 적절히 사용해서 생동감 있게 표현하고, 딱딱하거나 정중한 말투는 절대 사용하지 마.
+
+[맛집 추천 요청]
+송도 캠퍼스 주변 맛집을 추천해줘! 아래 데이터를 참고해서 상황별로 추천해줘:
+- 혼자 먹을 때
+- 친구들이랑 먹을 때
+- 저렴하게 먹고 싶을 때
+
+예시: "혼밥이면 긴자료코 가라아게동 어때? 9000원에 양도 많고 맛도 보장이야! 아니면 미정국수 칼국수도 가성비 개쩔어~ 7500원인데 완전 든든함 ㄱㄱ"`;
+
+    setInput("");
+    await append({ role: "user", content: aiPrompt });
   };
 
   // --- 이메일 작성 핸들러 ---
@@ -111,7 +145,7 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
 
   return (
     <>
-      <AssignmentCheckModal 
+      <AssignmentCheckModal
         isOpen={isModalOpen}
         initialData={tempSchedule}
         onClose={() => setIsModalOpen(false)}
@@ -120,10 +154,10 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
 
       <div className="bg-white/40 backdrop-blur-md border-t border-white/20 p-4 pb-6 relative z-30">
         <AnimatePresence mode="wait">
-          
+
           {/* 1. 플래너 위젯 */}
           {currentAgent.id === 'planner' && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0, y: 10 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
               exit={{ opacity: 0, height: 0, y: 10 }}
@@ -134,7 +168,7 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
               </p>
               {!isConnected ? (
                 <div className="flex gap-2">
-                  <input 
+                  <input
                     value={plannerUrl}
                     onChange={(e) => setPlannerUrl(e.target.value)}
                     placeholder="LearnUs 캘린더 URL"
@@ -145,7 +179,7 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
               ) : (
                 <div className="flex justify-between items-center">
                   <span className="text-purple-700 text-xs font-medium flex items-center gap-1">
-                    ✅ LearnUs 연결됨 
+                    ✅ LearnUs 연결됨
                     <button onClick={handleDisconnect} className="text-gray-400 hover:text-red-500 p-1"><Trash2 size={12} /></button>
                   </span>
                   <button onClick={handleFetchOnly} disabled={isLoading} className="flex items-center gap-1 bg-purple-100 text-purple-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-purple-200">
@@ -158,89 +192,89 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
 
           {/* 2. 맛잘알 위젯 */}
           {currentAgent.id === 'menu' && (
-             <motion.div 
-             initial={{ opacity: 0, height: 0, y: 10 }}
-             animate={{ opacity: 1, height: 'auto', y: 0 }}
-             exit={{ opacity: 0, height: 0, y: 10 }}
-             className="mb-3 p-4 bg-white/80 rounded-xl border border-orange-200 text-sm shadow-sm backdrop-blur-sm"
-           >
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: 10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: 10 }}
+              className="mb-3 p-4 bg-white/80 rounded-xl border border-orange-200 text-sm shadow-sm backdrop-blur-sm"
+            >
               <p className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-               <currentAgent.icon size={16} /> 오늘 뭐 먹지?
-             </p>
-             <div className="flex gap-2">
+                <currentAgent.icon size={16} /> 오늘 뭐 먹지?
+              </p>
+              <div className="flex gap-2">
                 <button onClick={handleCafeteriaCheck} disabled={isMenuLoading} className="flex-1 bg-orange-100 text-orange-700 py-3 rounded-lg font-bold hover:bg-orange-200 flex items-center justify-center gap-2">
-                  {isMenuLoading ? <RefreshCw size={16} className="animate-spin"/> : <Utensils size={16} />} 오늘의 학식
+                  {isMenuLoading ? <RefreshCw size={16} className="animate-spin" /> : <Utensils size={16} />} 오늘의 학식
                 </button>
                 <button onClick={handleRecommendRestaurant} className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-bold hover:bg-gray-200 flex items-center justify-center gap-2">
                   <MapPin size={16} /> 맛집 추천
                 </button>
-             </div>
-           </motion.div>
+              </div>
+            </motion.div>
           )}
 
           {/* 3. 이메일 위젯 */}
           {currentAgent.id === 'email' && (
-             <motion.div 
-             initial={{ opacity: 0, height: 0, y: 10 }}
-             animate={{ opacity: 1, height: 'auto', y: 0 }}
-             exit={{ opacity: 0, height: 0, y: 10 }}
-             className="mb-3 p-4 bg-white/80 rounded-xl border border-green-200 text-sm shadow-sm backdrop-blur-sm flex flex-col gap-3"
-           >
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: 10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: 10 }}
+              className="mb-3 p-4 bg-white/80 rounded-xl border border-green-200 text-sm shadow-sm backdrop-blur-sm flex flex-col gap-3"
+            >
               <p className="font-bold text-green-900 flex items-center gap-2">
-               <currentAgent.icon size={16} /> 이메일 비서
-             </p>
-             
-             <div className="grid grid-cols-2 gap-2">
-               <input 
-                 value={emailRecipient}
-                 onChange={(e) => setEmailRecipient(e.target.value)}
-                 placeholder="교수님 성함 (예: 김연세)"
-                 className="p-2 border border-green-200 rounded-lg text-xs focus:outline-green-500 placeholder-green-500/70 text-gray-900 bg-white/90"
-               />
-               <select 
-                 value={emailSituation}
-                 onChange={(e) => setEmailSituation(e.target.value)}
-                 className="p-2 border border-green-200 rounded-lg text-xs focus:outline-green-500 bg-white/90 text-gray-900"
-               >
-                 <option>출석 인정 (유고 결석)</option> <option>성적 정정/확인 문의</option> <option>면담/상담 요청</option> <option>강의 관련 질문</option> <option>과제 제출 지연 사유</option>
-               </select>
-             </div>
-             
-             <textarea 
-               value={emailReason}
-               onChange={(e) => setEmailReason(e.target.value)}
-               placeholder="구체적인 사유나 용건을 적어주세요."
-               className="p-2 border border-green-200 rounded-lg text-xs focus:outline-green-500 resize-none h-16 placeholder-green-500/70 text-gray-900 bg-white/90"
-             />
+                <currentAgent.icon size={16} /> 이메일 비서
+              </p>
 
-             <button 
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  value={emailRecipient}
+                  onChange={(e) => setEmailRecipient(e.target.value)}
+                  placeholder="교수님 성함 (예: 김연세)"
+                  className="p-2 border border-green-200 rounded-lg text-xs focus:outline-green-500 placeholder-green-500/70 text-gray-900 bg-white/90"
+                />
+                <select
+                  value={emailSituation}
+                  onChange={(e) => setEmailSituation(e.target.value)}
+                  className="p-2 border border-green-200 rounded-lg text-xs focus:outline-green-500 bg-white/90 text-gray-900"
+                >
+                  <option>출석 인정 (유고 결석)</option> <option>성적 정정/확인 문의</option> <option>면담/상담 요청</option> <option>강의 관련 질문</option> <option>과제 제출 지연 사유</option>
+                </select>
+              </div>
+
+              <textarea
+                value={emailReason}
+                onChange={(e) => setEmailReason(e.target.value)}
+                placeholder="구체적인 사유나 용건을 적어주세요."
+                className="p-2 border border-green-200 rounded-lg text-xs focus:outline-green-500 resize-none h-16 placeholder-green-500/70 text-gray-900 bg-white/90"
+              />
+
+              <button
                 onClick={handleDraftEmail}
                 className="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition-colors flex items-center justify-center gap-2 shadow-md"
-             >
-               <PenTool size={14} /> 초안 작성하기
-             </button>
-           </motion.div>
+              >
+                <PenTool size={14} /> 초안 작성하기
+              </button>
+            </motion.div>
           )}
 
           {/* ✨ 4. 송도 고인물 위젯 */}
           {currentAgent.id === 'local' && (
-             <motion.div 
-               initial={{ opacity: 0, height: 0, y: 10 }} 
-               animate={{ opacity: 1, height: 'auto', y: 0 }} 
-               exit={{ opacity: 0, height: 0, y: 10 }} 
-               className="mb-3 p-4 bg-white/80 rounded-xl border border-teal-200 text-sm shadow-sm backdrop-blur-sm flex flex-col gap-3"
-             >
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: 10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: 10 }}
+              className="mb-3 p-4 bg-white/80 rounded-xl border border-teal-200 text-sm shadow-sm backdrop-blur-sm flex flex-col gap-3"
+            >
               <p className="font-bold text-teal-900 flex items-center gap-2">
                 <currentAgent.icon size={16} /> 송도 고인물
               </p>
-              
+
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => setInput("기숙사 배달 어디서 받아야 해?")} className="bg-teal-50 text-teal-700 p-2 rounded-lg text-xs hover:bg-teal-100 text-left">🛵 배달 수령 위치?</button>
                 <button onClick={() => setInput("일반쓰레기랑 음식물 어디다 버려?")} className="bg-teal-50 text-teal-700 p-2 rounded-lg text-xs hover:bg-teal-100 text-left">🗑️ 쓰레기 배출 방법?</button>
                 <button onClick={() => setInput("지금 프린트 할 수 있는 곳 있어?")} className="bg-teal-50 text-teal-700 p-2 rounded-lg text-xs hover:bg-teal-100 text-left">🖨️ 프린트 위치</button>
                 <button onClick={() => setInput("근처 약국이나 병원 어디야?")} className="bg-teal-50 text-teal-700 p-2 rounded-lg text-xs hover:bg-teal-100 text-left">💊 약국/병원 위치</button>
               </div>
-           </motion.div>
+            </motion.div>
           )}
 
         </AnimatePresence>
@@ -252,7 +286,7 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
             placeholder={`${currentAgent.name}에게 질문하기...`}
             className="w-full p-4 bg-white/70 backdrop-blur-sm rounded-2xl text-sm border border-white/40 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/90 transition-all pl-5 placeholder-gray-500 text-gray-900"
           />
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
