@@ -1,14 +1,6 @@
-import { Calendar, Utensils, Mail, Lightbulb, Bot } from "lucide-react"; // ✨ Bus 삭제, Lightbulb 추가
+import { Calendar, Utensils, Mail, Map } from "lucide-react";
 
 export const agents = [
-  { 
-    id: "general", 
-    name: "연세-Navi", 
-    role: "메인 비서", 
-    icon: Bot, 
-    color: "bg-blue-600",
-    desc: "무엇이든 물어보세요!" 
-  },
   { 
     id: "planner", 
     name: "J형 조교", 
@@ -33,13 +25,12 @@ export const agents = [
     color: "bg-green-600",
     desc: "교수님께 보낼 메일 초안 작성." 
   },
-  // ✨ 버스 -> 아이디어 뱅크로 교체
   { 
-    id: "idea", 
-    name: "아이디어 뱅크", 
-    role: "과제/팀플", 
-    icon: Lightbulb, 
-    color: "bg-yellow-500",
-    desc: "막막한 과제 주제와 목차를 잡아드려요." 
+    id: "local", 
+    name: "송도 고인물", 
+    role: "생활/꿀팁", 
+    icon: Map, 
+    color: "bg-teal-600",
+    desc: "배달존, 시설 위치 등 송도만의 꿀팁을 알려드려요." 
   }
 ];

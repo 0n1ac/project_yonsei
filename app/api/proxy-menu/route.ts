@@ -1,39 +1,88 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  // ✨ [수정됨] 모바일 페이지(/m/...) 대신 데이터가 꽉 찬 'PC 버전 식단표 주소'로 변경
-  const targetUrl = "https://www.yonseicoop.co.kr/coop/food_menu.php";
+  // 연세 생협(송도 2식당) 모바일 페이지 URL
+  const targetUrl = "https://yonseicoop.co.kr/m/?act=info.page&seq=29";
 
   try {
+    console.log("[Proxy] 1. Fetching main page...");
+
+    // 1. 메인 페이지 가져오기
     const response = await fetch(targetUrl, {
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-      },
-      // @ts-ignore
-      rejectUnauthorized: false 
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      }
     });
 
     if (!response.ok) {
-      console.error("[Menu Proxy] Fetch Failed:", response.status);
-      return NextResponse.json({ error: `Fetch failed: ${response.status}` }, { status: response.status });
+      console.error("[Proxy] Main page fetch failed:", response.status);
+      return NextResponse.json({ error: "Menu fetch failed" }, { status: response.status });
     }
 
-    const buffer = await response.arrayBuffer();
-    
-    // PC 사이트는 EUC-KR일 확률이 높지만, 최근엔 UTF-8도 많음.
-    // 일단 UTF-8로 시도하고, 만약 한글이 깨지면 'euc-kr'로 바꿔야 합니다.
-    const decoder = new TextDecoder('utf-8'); 
-    const htmlData = decoder.decode(buffer);
+    const htmlData = await response.text();
+    console.log(`[Proxy] Main page loaded (${htmlData.length} bytes)`);
 
-    return new NextResponse(htmlData, {
-      status: 200,
-      headers: { "Content-Type": "text/html; charset=utf-8" },
+    // 2. iframe src 추출
+    const iframeMatch = htmlData.match(/<iframe[^>]*src=["']([^"']+)["']/i);
+    if (!iframeMatch) {
+      console.error("[Proxy] No iframe found");
+      return NextResponse.json({ error: "No iframe found" }, { status: 500 });
+    }
+
+    let iframeSrc = iframeMatch[1];
+    console.log(`[Proxy] 2. Found iframe: ${iframeSrc}`);
+
+    // 3. 상대 경로를 절대 경로로 변환
+    if (!iframeSrc.startsWith("http")) {
+      iframeSrc = `https://yonseicoop.co.kr${iframeSrc}`;
+    }
+
+    // 4. iframe 콘텐츠 가져오기
+    console.log("[Proxy] 3. Fetching iframe content...");
+    const iframeResponse = await fetch(iframeSrc, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      }
     });
 
-  } catch (error: any) {
-    console.error("[Menu Proxy] Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!iframeResponse.ok) {
+      console.error("[Proxy] Iframe fetch failed:", iframeResponse.status);
+      return NextResponse.json({ error: "Iframe fetch failed" }, { status: iframeResponse.status });
+    }
+
+    const iframeHtml = await iframeResponse.text();
+    console.log(`[Proxy] Iframe loaded (${iframeHtml.length} bytes)`);
+
+    // 5. weekData 추출
+    const weekDataMatch = iframeHtml.match(/var\s+weekData\s*=\s*(\[[\s\S]*?\]);/);
+
+    if (!weekDataMatch) {
+      console.error("[Proxy] weekData not found in iframe");
+      return NextResponse.json({ error: "weekData not found" }, { status: 500 });
+    }
+
+    const weekDataJson = weekDataMatch[1];
+    console.log("[Proxy] 4. weekData extracted successfully");
+
+    // 6. JSON 파싱해서 반환
+    try {
+      const weekData = JSON.parse(weekDataJson);
+      console.log(`[Proxy] 5. Parsed ${weekData.length} days of menu data`);
+
+      // 캠퍼스 이름들 확인
+      const campusNames = weekData.map((d: any) => d.campusName);
+      console.log(`[Proxy] 캠퍼스 이름들:`, campusNames);
+
+      return NextResponse.json({ weekData }, { status: 200 });
+    } catch (parseError) {
+      console.error("[Proxy] JSON parse error:", parseError);
+      return NextResponse.json({ error: "Failed to parse weekData" }, { status: 500 });
+    }
+
+  } catch (error) {
+    console.error("[Proxy] Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
