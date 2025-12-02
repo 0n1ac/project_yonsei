@@ -152,7 +152,7 @@ ${menuText}
         onConfirm={handleFinalSync}
       />
 
-      <div className="bg-white/40 backdrop-blur-md border-t border-white/20 p-4 pb-6 relative z-30">
+      <div className="bg-white/40 backdrop-blur-md border-t border-white/20 p-2 sm:p-3 md:p-4 pb-3 sm:pb-4 md:pb-6 relative z-30">
         <AnimatePresence mode="wait">
 
           {/* 1. 플래너 위젯 */}
@@ -161,20 +161,20 @@ ${menuText}
               initial={{ opacity: 0, height: 0, y: 10 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
               exit={{ opacity: 0, height: 0, y: 10 }}
-              className="mb-3 p-4 bg-white/80 rounded-xl border border-purple-200 text-sm shadow-sm backdrop-blur-sm"
+              className="mb-2 sm:mb-3 p-2 sm:p-3 md:p-4 bg-white/80 rounded-lg sm:rounded-xl border border-purple-200 text-xs sm:text-sm shadow-sm backdrop-blur-sm"
             >
-              <p className="font-bold text-purple-900 mb-2 flex items-center gap-2">
-                <currentAgent.icon size={16} /> J형 조교의 일정 관리
+              <p className="font-bold text-purple-900 mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+                <currentAgent.icon size={14} className="sm:w-4 sm:h-4" /> J형 조교의 일정 관리
               </p>
               {!isConnected ? (
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2">
                   <input
                     value={plannerUrl}
                     onChange={(e) => setPlannerUrl(e.target.value)}
                     placeholder="LearnUs 캘린더 URL"
-                    className="flex-1 p-2 border border-purple-200 rounded-lg text-xs focus:outline-purple-500 placeholder-purple-400/70 text-gray-900"
+                    className="flex-1 p-1.5 sm:p-2 border border-purple-200 rounded-md sm:rounded-lg text-[11px] sm:text-xs focus:outline-purple-500 placeholder-purple-400/70 text-gray-900"
                   />
-                  <button onClick={handleConnect} className="bg-purple-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-purple-700">연동</button>
+                  <button onClick={handleConnect} className="bg-purple-600 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-bold hover:bg-purple-700 active:bg-purple-800">연동</button>
                 </div>
               ) : (
                 <div className="flex justify-between items-center">
@@ -196,17 +196,17 @@ ${menuText}
               initial={{ opacity: 0, height: 0, y: 10 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
               exit={{ opacity: 0, height: 0, y: 10 }}
-              className="mb-3 p-4 bg-white/80 rounded-xl border border-orange-200 text-sm shadow-sm backdrop-blur-sm"
+              className="mb-2 sm:mb-3 p-2 sm:p-3 md:p-4 bg-white/80 rounded-lg sm:rounded-xl border border-orange-200 text-xs sm:text-sm shadow-sm backdrop-blur-sm"
             >
-              <p className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-                <currentAgent.icon size={16} /> 오늘 뭐 먹지?
+              <p className="font-bold text-orange-900 mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+                <currentAgent.icon size={14} className="sm:w-4 sm:h-4" /> 오늘 뭐 먹지?
               </p>
-              <div className="flex gap-2">
-                <button onClick={handleCafeteriaCheck} disabled={isMenuLoading} className="flex-1 bg-orange-100 text-orange-700 py-3 rounded-lg font-bold hover:bg-orange-200 flex items-center justify-center gap-2">
-                  {isMenuLoading ? <RefreshCw size={16} className="animate-spin" /> : <Utensils size={16} />} 오늘의 학식
+              <div className="flex gap-1.5 sm:gap-2">
+                <button onClick={handleCafeteriaCheck} disabled={isMenuLoading} className="flex-1 bg-orange-100 text-orange-700 py-2 sm:py-2.5 md:py-3 rounded-lg font-bold hover:bg-orange-200 active:bg-orange-300 flex items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs md:text-sm">
+                  {isMenuLoading ? <RefreshCw size={14} className="sm:w-4 sm:h-4 animate-spin" /> : <Utensils size={14} className="sm:w-4 sm:h-4" />} 오늘의 학식
                 </button>
-                <button onClick={handleRecommendRestaurant} className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-bold hover:bg-gray-200 flex items-center justify-center gap-2">
-                  <MapPin size={16} /> 맛집 추천
+                <button onClick={handleRecommendRestaurant} className="flex-1 bg-gray-100 text-gray-700 py-2 sm:py-2.5 md:py-3 rounded-lg font-bold hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs md:text-sm">
+                  <MapPin size={14} className="sm:w-4 sm:h-4" /> 맛집 추천
                 </button>
               </div>
             </motion.div>
@@ -279,23 +279,23 @@ ${menuText}
 
         </AnimatePresence>
 
-        <form onSubmit={handleDebugSubmit} className="flex gap-2 items-center relative">
+        <form onSubmit={handleDebugSubmit} className="flex gap-1.5 sm:gap-2 items-center relative">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={`${currentAgent.name}에게 질문하기...`}
-            className="w-full p-4 bg-white/70 backdrop-blur-sm rounded-2xl text-sm border border-white/40 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/90 transition-all pl-5 placeholder-gray-500 text-gray-900"
+            className="w-full p-2.5 sm:p-3 md:p-4 bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl text-xs sm:text-sm border border-white/40 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/90 transition-all pl-3 sm:pl-4 md:pl-5 placeholder-gray-500 text-gray-900"
           />
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
             className={clsx(
-              "p-4 rounded-2xl text-white shadow-lg flex items-center justify-center backdrop-blur-sm",
+              "p-2.5 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl text-white shadow-lg flex items-center justify-center backdrop-blur-sm active:scale-90",
               currentAgent.color
             )}
           >
-            <Send size={20} />
+            <Send size={16} className="sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
           </motion.button>
         </form>
       </div>

@@ -19,8 +19,58 @@
   }
 }
 
+/* ✨ 모바일 안전 영역 및 최적화 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html {
+  /* 모바일 100vh 버그 방지 */
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+
+  /* 모바일 안전 영역 패딩 (노치 대응) */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+
+  /* 최소 높이 보장 */
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+
+  /* 모바일 스크롤 최적화 */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* 입력 요소 줌 방지 (iOS) */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

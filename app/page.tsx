@@ -112,19 +112,19 @@ export default function Home() {
   };
 
   return (
-    // ✨ 배경에 currentTheme.class 적용
+    // ✨ 배경에 currentTheme.class 적용 + 모바일 안전 높이
     <div className={clsx(
-      "min-h-screen bg-gradient-to-br flex items-center justify-center p-0 md:p-6 font-sans transition-colors duration-500 ease-in-out",
+      "min-h-screen min-h-[100dvh] bg-gradient-to-br flex items-center justify-center p-0 md:p-6 font-sans transition-colors duration-500 ease-in-out overflow-hidden",
       currentTheme.class
     )}>
 
-      {/* ✨ 테마 변경 버튼 (우측 상단) */}
-      <div className="absolute top-4 right-4 z-50">
+      {/* ✨ 테마 변경 버튼 (우측 상단) - 모바일 안전 영역 고려 */}
+      <div className="absolute top-safe-or-4 right-safe-or-4 z-50" style={{ top: 'max(1rem, env(safe-area-inset-top))', right: 'max(1rem, env(safe-area-inset-right))' }}>
         <button
           onClick={() => setShowThemePicker(!showThemePicker)}
-          className="p-3 bg-white/40 backdrop-blur-md rounded-full shadow-lg hover:bg-white/60 transition-all border border-white/50 text-gray-600"
+          className="p-2 md:p-3 bg-white/40 backdrop-blur-md rounded-full shadow-lg hover:bg-white/60 transition-all border border-white/50 text-gray-600 active:scale-95"
         >
-          <Palette size={20} />
+          <Palette size={18} className="md:w-5 md:h-5" />
         </button>
 
         <AnimatePresence>
@@ -133,9 +133,9 @@ export default function Home() {
               initial={{ opacity: 0, y: -10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.9 }}
-              className="absolute right-0 mt-2 p-3 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/60 w-48 flex flex-col gap-2"
+              className="absolute right-0 mt-2 p-2 md:p-3 bg-white/90 backdrop-blur-xl rounded-xl md:rounded-2xl shadow-xl border border-white/60 w-40 md:w-48 flex flex-col gap-1.5 md:gap-2 max-h-[60vh] overflow-y-auto"
             >
-              <p className="text-xs font-bold text-gray-500 mb-1 px-1">테마 선택</p>
+              <p className="text-[10px] md:text-xs font-bold text-gray-500 mb-0.5 md:mb-1 px-1">테마 선택</p>
               {themes.map((t) => (
                 <button
                   key={t.id}
@@ -144,12 +144,12 @@ export default function Home() {
                     setShowThemePicker(false);
                   }}
                   className={clsx(
-                    "flex items-center gap-3 p-2 rounded-xl text-sm font-medium transition-all",
-                    currentTheme.id === t.id ? "bg-white shadow-sm ring-1 ring-gray-200" : "hover:bg-white/50"
+                    "flex items-center gap-2 md:gap-3 p-1.5 md:p-2 rounded-lg md:rounded-xl text-xs md:text-sm font-medium transition-all active:scale-95",
+                    currentTheme.id === t.id ? "bg-white shadow-sm ring-1 ring-gray-200" : "hover:bg-white/50 active:bg-white/70"
                   )}
                 >
-                  <div className={clsx("w-6 h-6 rounded-full shadow-inner", t.dot)} />
-                  <span className="text-gray-700">{t.name}</span>
+                  <div className={clsx("w-5 h-5 md:w-6 md:h-6 rounded-full shadow-inner flex-shrink-0", t.dot)} />
+                  <span className="text-gray-700 truncate">{t.name}</span>
                 </button>
               ))}
             </motion.div>
@@ -157,7 +157,7 @@ export default function Home() {
         </AnimatePresence>
       </div>
 
-      <div className="w-full h-full md:h-[92vh] md:max-w-5xl bg-white/30 backdrop-blur-xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-white/40 relative transition-all duration-300">
+      <div className="w-full h-screen h-[100dvh] md:h-[92vh] md:max-w-5xl bg-white/30 backdrop-blur-xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border-0 md:border border-white/40 relative transition-all duration-300">
         <AnimatePresence mode="wait">
           {!isStarted ? (
             <motion.div
