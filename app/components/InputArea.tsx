@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, RefreshCw, Trash2, Utensils, MapPin, Mail, PenTool } from "lucide-react";
+import { Send, RefreshCw, Trash2, Utensils, MapPin, Mail, PenTool, HelpCircle } from "lucide-react";
 import { clsx } from "clsx";
 import { saveLearnUsUrl, getStoredAuth, fetchSchedule } from "../utils/planner";
 import { fetchTodayMenu } from "../utils/menuScraper";
@@ -24,6 +24,7 @@ export default function InputArea({ currentAgent, input, setInput, onSubmit, app
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempSchedule, setTempSchedule] = useState<any[]>([]);
   const [isMenuLoading, setIsMenuLoading] = useState(false);
+  const [showUrlHelp, setShowUrlHelp] = useState(false);
 
   // 이메일 상태
   const [emailRecipient, setEmailRecipient] = useState("");
@@ -163,9 +164,37 @@ ${menuText}
               exit={{ opacity: 0, height: 0, y: 10 }}
               className="mb-2 sm:mb-3 p-2 sm:p-3 md:p-4 bg-white/80 rounded-lg sm:rounded-xl border border-purple-200 text-xs sm:text-sm shadow-sm backdrop-blur-sm"
             >
-              <p className="font-bold text-purple-900 mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
-                <currentAgent.icon size={14} className="sm:w-4 sm:h-4" /> J형 조교의 일정 관리
-              </p>
+              <div className="font-bold text-purple-900 mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2 relative">
+                <currentAgent.icon size={14} className="sm:w-4 sm:h-4" />
+                <span>J형 조교의 일정 관리</span>
+                <button
+                  type="button"
+                  onClick={() => setShowUrlHelp(!showUrlHelp)}
+                  className="text-purple-600 hover:text-purple-800 transition-colors"
+                  aria-label="URL 입력 방법 도움말"
+                >
+                  <HelpCircle size={14} className="sm:w-4 sm:h-4" />
+                </button>
+                {showUrlHelp && (
+                  <div className="absolute top-full left-0 mt-2 p-3 bg-white rounded-lg shadow-lg border border-purple-200 text-xs font-normal text-gray-700 z-50 w-72 sm:w-80">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-bold text-purple-900">URL 넣는 방법</span>
+                      <button onClick={() => setShowUrlHelp(false)} className="text-gray-400 hover:text-gray-600">
+                        ✕
+                      </button>
+                    </div>
+                    <ol className="list-decimal list-inside space-y-1 text-[11px] leading-relaxed">
+                      <li>LearnUs 로그인</li>
+                      <li>우측 상단에 My Page</li>
+                      <li>좌측 리스트에서 "예정된 할일"</li>
+                      <li>하단에 "일정 내보내기" 클릭</li>
+                      <li>"모든 일정" + "현재와 추후 2달" 선택</li>
+                      <li>"일정 URL 불러오기" 클릭</li>
+                      <li>URL 복사</li>
+                    </ol>
+                  </div>
+                )}
+              </div>
               {!isConnected ? (
                 <div className="flex gap-1.5 sm:gap-2">
                   <input
