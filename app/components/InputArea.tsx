@@ -176,7 +176,7 @@ ${menuText}
                   <HelpCircle size={14} className="sm:w-4 sm:h-4" />
                 </button>
                 {showUrlHelp && (
-                  <div className="absolute top-full left-0 mt-2 p-3 bg-white rounded-lg shadow-lg border border-purple-200 text-xs font-normal text-gray-700 z-50 w-72 sm:w-80">
+                  <div className="absolute bottom-full left-0 mb-2 p-3 bg-white rounded-lg shadow-lg border border-purple-200 text-xs font-normal text-gray-700 z-50 w-72 sm:w-80">
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-bold text-purple-900">URL 넣는 방법</span>
                       <button onClick={() => setShowUrlHelp(false)} className="text-gray-400 hover:text-gray-600">
